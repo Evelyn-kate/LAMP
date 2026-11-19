@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lamp">
+<title>Lamp — Daily Bible</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#2b2118">
+<style>
+  :root{--bg:#f6efe2;--card:#fffaf1;--ink:#2b2118;--muted:#7a6a58;--line:#e6dac5;--gold:#b8862b;--soft:#f1e2bf;--accent:#7a3b2e;--ok:#4f7a3a;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  @media (prefers-color-scheme:dark){body[data-theme=parchment]{--bg:#17130f;--card:#221c16;--ink:#f1e7d6;--muted:#a8977f;--line:#3a3027;--gold:#e0b35a;--soft:#3b2f1c;--accent:#e5a08f;--ok:#9cc483}}
+  body[data-theme=olive]{--bg:#eef0e4;--card:#fbfcf5;--ink:#24301c;--muted:#66705a;--line:#d9dfc8;--gold:#6f8a3a;--soft:#e2e9cf;--accent:#8a5a2b}
+  body[data-theme=purple]{--bg:#f1ecf5;--card:#fcf9fe;--ink:#2a1d38;--muted:#6f5f80;--line:#e0d5ea;--gold:#7b4fa8;--soft:#e9dcf5;--accent:#b8862b}
+  body[data-theme=galilee]{--bg:#e8f2f5;--card:#f8fcfd;--ink:#13303a;--muted:#557884;--line:#cfe2e8;--gold:#1f7f99;--soft:#d3eaf0;--accent:#d17a4a}
+  body[data-theme=night]{--bg:#0f1424;--card:#182036;--ink:#e8ecf8;--muted:#9aa5c4;--line:#2a3452;--gold:#e8c26a;--soft:#2b3150;--accent:#8fb1ff;--ok:#8fd49a}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  body{padding:env(safe-area-inset-top) 0 calc(80px + env(safe-area-inset-bottom));min-height:100vh;transition:background .3s}
+  main{max-width:560px;margin:0 auto;padding:16px}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0} h1{font-size:26px} h2{font-size:20px} h3{font-size:16px}
+  p{line-height:1.5} .muted{color:var(--muted)} .small{font-size:13px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
+  .row{display:flex;align-items:center;gap:8px} .between{justify-content:space-between} .wrap{flex-wrap:wrap}
+  .btn{appearance:none;border:0;border-radius:14px;padding:14px 16px;font:600 16px var(--sans);background:var(--ink);color:var(--bg);width:100%;cursor:pointer;text-align:center;text-decoration:none;display:block}
+  .btn.gold{background:var(--gold);color:#fff} .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn.sm{white-space:nowrap;padding:9px 12px;font-size:14px;width:auto;border-radius:11px;display:inline-block}
+  .btn:active{transform:scale(.98)} .btn:disabled{opacity:.45}
+  .chip{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:999px;background:var(--soft);font-weight:700;font-size:14px}
+  .tag{display:inline-block;padding:3px 9px;border-radius:99px;background:var(--soft);font-size:12px;font-weight:600}
+  .verse{font-family:var(--serif);font-size:21px;line-height:1.5;margin:8px 0 6px}
+  .ref{font-weight:700;color:var(--gold);letter-spacing:.05em;font-size:12px;text-transform:uppercase}
+  .banner{background:var(--accent);color:#fff;border-radius:14px;padding:12px 14px;margin-top:12px;font-weight:600;font-size:15px;animation:pulse 2.4s infinite}
+  @keyframes pulse{50%{opacity:.82}}
+  .step{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)} .step:first-child{border-top:0}
+  .num{flex:0 0 28px;height:28px;border-radius:50%;background:var(--soft);color:var(--gold);display:grid;place-items:center;font-weight:700;font-size:14px}
+  .step.done .num{background:var(--ok);color:#fff}
+  .reading{font-family:var(--serif);font-size:21px;margin:4px 0;line-height:1.35}
+  .intro{font-style:italic;color:var(--muted);font-family:var(--serif);font-size:15px}
+  .chaps{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+  .chap{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+  .chap a{padding:9px 11px;color:var(--ink);text-decoration:none;font:600 15px var(--serif)}
+  .chap button{border:0;border-left:1px solid var(--line);background:transparent;padding:9px 10px;font-size:15px;color:var(--muted);cursor:pointer}
+  .chap.ok{border-color:var(--ok)} .chap.ok button{background:var(--ok);color:#fff}
+  .lookfor{background:var(--soft);border-radius:12px;padding:12px;margin-top:10px;font-size:15px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:12px 0 5px}
+  input,textarea,select{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:12px;font:16px var(--sans)}
+  textarea{min-height:70px;resize:vertical;font-family:var(--serif);line-height:1.45}
+  nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:5}
+  nav button{background:none;border:0;color:var(--muted);font:600 11px var(--sans);display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 6px;cursor:pointer;position:relative}
+  nav button svg{width:24px;height:24px} nav button.on{color:var(--gold)}
+  nav .dot{position:absolute;top:4px;right:10px;width:9px;height:9px;border-radius:50%;background:var(--accent);display:none}
+  .view{display:none} .view.on{display:block;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .bar{height:10px;background:var(--line);border-radius:99px;overflow:hidden} .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:99px;transition:width .5s}
+  .plan{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 0;cursor:pointer} .plan.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--soft)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat{background:var(--bg);border-radius:12px;padding:10px 4px;text-align:center} .stat b{display:block;font-family:var(--serif);font-size:24px} .stat span{font-size:11px;color:var(--muted)}
+  .heat{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;gap:4px;margin-top:8px}
+  .heat i{aspect-ratio:1;border-radius:4px;background:var(--line)} .heat i.y{background:var(--gold)} .heat i.g{background:var(--soft);outline:1px dashed var(--gold)} .heat i.t{outline:2px solid var(--accent)}
+  .badges{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .badge{text-align:center;font-size:11px;color:var(--muted)} .badge .b{width:50px;height:50px;margin:0 auto 5px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:16px;background:var(--line)}
+  .badge.got .b{background:linear-gradient(135deg,var(--gold),var(--accent));color:#fff} .badge.got{color:var(--ink)}
+  .entry{border-top:1px solid var(--line);padding:12px 0} .entry:first-child{border-top:0}
+  .entry summary{cursor:pointer;list-style:none} .entry summary::-webkit-details-marker{display:none}
+  .entry dt{font-size:12px;font-weight:700;color:var(--gold);margin-top:8px;text-transform:uppercase} .entry dd{margin:2px 0 0;font-family:var(--serif);white-space:pre-wrap}
+  .w{display:inline-block;margin-right:.28em} .w.h{color:var(--gold);border-bottom:2px dotted var(--gold);cursor:pointer}
+  .overlay{position:fixed;inset:0;background:rgba(15,10,5,.55);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+  .overlay.on{display:flex;animation:fade .25s} .overlay .card{max-width:380px;width:100%;text-align:center;max-height:85vh;overflow:auto}
+  .spark{position:fixed;width:8px;height:8px;border-radius:2px;z-index:30;pointer-events:none;animation:fall 1.7s ease-in forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(560deg);opacity:.2}}
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.3s;z-index:40;pointer-events:none;max-width:90vw;text-align:center}
+  .toast.on{opacity:1}
+  .day{display:flex;gap:10px;align-items:center;padding:8px 2px;border-top:1px solid var(--line);font-size:14px}
+  .day .ck{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;color:#fff}
+  .day.dn .ck{background:var(--ok);border-color:var(--ok)} .day.cur{background:var(--soft);border-radius:10px;padding:8px}
+  .day .dt{flex:0 0 74px;color:var(--muted);font-size:12px} .day .lb{font-family:var(--serif)}
+  .month{font-family:var(--serif);font-weight:600;margin:14px 0 4px;color:var(--gold)}
+  .games{display:grid;grid-template-columns:1fr;gap:10px}
+  .game{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;background:var(--card)}
+  .game .ic{font-size:30px;width:52px;height:52px;border-radius:14px;background:var(--soft);display:grid;place-items:center}
+  .grid{display:grid;gap:3px;user-select:none;-webkit-user-select:none;touch-action:manipulation;margin:10px auto}
+  .grid button{aspect-ratio:1;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font:700 15px var(--sans);padding:0;cursor:pointer}
+  .grid button.sel{background:var(--accent);color:#fff} .grid button.f{background:var(--gold);color:#fff}
+  .words{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px} .words span{padding:4px 9px;border-radius:99px;background:var(--bg);font-size:13px;font-weight:600}
+  .words span.f{text-decoration:line-through;opacity:.5}
+  .tiles{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .tiles button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 11px;font:600 15px var(--serif);cursor:pointer}
+  .answer{min-height:60px;background:var(--bg);border-radius:12px;padding:10px;font-family:var(--serif);font-size:18px;line-height:1.5}
+  .shake{animation:shake .35s} @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .lock{text-align:center;padding:30px 16px} .lock .big{font-size:52px}
+  .shop{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)} .shop:first-of-type{border-top:0}
+  .rk{font-family:var(--serif);font-size:18px;font-weight:600}
+  ol.howto{padding-left:20px;margin:6px 0} ol.howto li{margin:7px 0;line-height:1.45;font-size:14px}
+  code{background:var(--bg);padding:1px 5px;border-radius:5px;font-size:13px}
+</style>
+</head>
+<body data-theme="parchment">
+<main>
+
+<!-- TODAY -->
+<section class="view on" id="v-today">
+  <div class="row between" style="margin-top:6px">
+    <div><div class="muted small" id="dateLine"></div><h1 id="greet">Welcome</h1></div>
+    <div class="row">
+      <span class="chip" title="Day streak">🔥 <span id="streakNum">0</span></span>
+      <span class="chip" title="Points">⭐ <span id="ptsNum">0</span></span>
+    </div>
+  </div>
+  <div class="banner" id="nag" style="display:none"></div>
+
+  <div class="card">
+    <div class="row between"><span class="ref">Next reward</span><span class="small muted" id="rankLine"></span></div>
+    <div class="bar" style="margin:10px 0 6px"><i id="rewardBar"></i></div>
+    <div class="small muted" id="rewardText"></div>
+  </div>
+
+  <div class="card">
+    <div class="row between"><span class="ref">Verse of the day</span><button class="btn ghost sm" id="memBtn">Memorize</button></div>
+    <div class="verse" id="votd"></div>
+    <div class="row between wrap"><div class="muted" id="votdRef"></div><a class="small" id="votdNlt" target="_blank" rel="noopener" style="color:var(--gold);font-weight:700">Read in NLT ›</a></div>
+    <div id="memCtrl" style="display:none;margin-top:12px">
+      <p class="small muted" style="margin:0 0 8px">Say it aloud, then hide more words. Tap a hidden word to peek.</p>
+      <div class="row wrap"><button class="btn ghost sm" id="memLess">Show more</button><button class="btn gold sm" id="memMore">Hide more</button></div>
+    </div>
+  </div>
+
+  <div class="card" id="todayCard">
+    <div class="step" id="s1"><div class="num">1</div><div style="flex:1">
+      <h3>Quiet your heart <span class="tag">+2 ⭐</span></h3>
+      <p class="muted" style="margin:4px 0 8px;font-family:var(--serif)">“Open thou mine eyes, that I may behold wondrous things out of thy law.” — Psalm 119:18</p>
+      <button class="btn ghost sm" id="prayBtn">I've prayed — let's begin</button></div></div>
+    <div class="step"><div class="num">2</div><div style="flex:1">
+      <h3>Today's reading <span class="muted small" id="dayOf"></span></h3>
+      <div class="reading" id="reading"></div>
+      <div class="small muted" id="chapHint">Tap a chapter to read it in the <b>NLT</b>, then tick it ✓ when you finish.</div>
+      <div class="chaps" id="chapList"></div>
+      <div class="intro" id="bookIntro"></div>
+      <div class="lookfor"><b>Look for this:</b> <span id="lookfor"></span></div></div></div>
+    <div class="step"><div class="num">3</div><div style="flex:1">
+      <h3>Reflect <span class="tag">+5 ⭐</span></h3>
+      <label>Scripture — a verse that stood out</label><textarea id="jS"></textarea>
+      <label>Observation — what did you notice?</label><textarea id="jO" placeholder="Answer the “look for” question…"></textarea>
+      <label>Application — what will you do?</label><textarea id="jA" placeholder="One small, specific step…"></textarea>
+      <label>Prayer</label><textarea id="jP"></textarea></div></div>
+    <div class="step"><div class="num">4</div><div style="flex:1">
+      <button class="btn gold" id="doneBtn">I've read today ✓ <span style="opacity:.8">+10 ⭐</span></button>
+      <button class="btn ghost sm" id="otherBtn" style="margin-top:10px;width:100%">I read something else today</button></div></div>
+  </div>
+
+  <div class="card" id="doneCard" style="display:none;text-align:center">
+    <div style="font-size:40px">🕊️</div>
+    <h2>Streak secured for today</h2>
+    <p class="muted" id="doneMsg"></p>
+    <a class="btn gold" id="stopRem" href="shortcuts://run-shortcut?name=Lamp%20Done">Stop today's reminders</a>
+    <p class="small muted" style="margin:6px 0 12px">If that button doesn't open Shortcuts, tap your <b>Lamp Done</b> icon on your Home Screen.</p>
+    <div class="row wrap" style="justify-content:center">
+      <button class="btn ghost sm" id="playBtn">🎮 Play games</button>
+      <button class="btn ghost sm" id="aheadBtn">Read ahead</button>
+    </div>
+  </div>
+</section>
+
+<!-- PLAN -->
+<section class="view" id="v-plan">
+  <h1>Reading plan</h1>
+  <div class="card">
+    <div class="row between"><h3 id="planName"></h3><span class="tag" id="planPct"></span></div>
+    <div class="bar" style="margin:10px 0"><i id="planBar"></i></div>
+    <p class="small" id="planInfo" style="margin:0"></p>
+    <p class="small muted" id="paceInfo" style="margin:6px 0 0"></p>
+  </div>
+  <div class="card">
+    <div class="row between"><h3>Day-by-day schedule</h3><button class="btn ghost sm" id="jumpBtn">Jump to today</button></div>
+    <div id="schedule" style="margin-top:6px"></div>
+  </div>
+  <h2 style="margin-top:18px">Change plan</h2>
+  <p class="muted small">Switching starts the new plan at Day 1 today. Your streak, points and journal stay.</p>
+  <div id="planList"></div>
+</section>
+
+<!-- PLAY -->
+<section class="view" id="v-play">
+  <div class="row between"><h1>Play</h1><span class="chip">⭐ <span id="ptsNum2">0</span></span></div>
+  <div id="playLocked" class="card lock">
+    <div class="big">🔒</div><h2>Read first, then play</h2>
+    <p class="muted">Games unlock each day once you've finished today's reading. Your Bible is waiting!</p>
+    <button class="btn gold" data-go="today">Go to today's reading</button>
+  </div>
+  <div id="playOpen">
+    <div id="gameMenu">
+      <p class="muted small">Your first win in each game every day earns +5 ⭐. Spend points in the shop below to upgrade.</p>
+      <div class="games">
+        <div class="game" data-game="ws"><div class="ic">🔎</div><div style="flex:1"><h3>Word Search</h3><div class="small muted" id="wsLv"></div></div></div>
+        <div class="game" data-game="vb"><div class="ic">🧩</div><div style="flex:1"><h3>Verse Builder</h3><div class="small muted" id="vbLv"></div></div></div>
+        <div class="game" data-game="bo"><div class="ic">📚</div><div style="flex:1"><h3>Books in Order</h3><div class="small muted" id="boLv"></div></div></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h2>Upgrade shop</h2>
+        <div id="shop"></div>
+      </div>
+    </div>
+    <div id="gameArea" style="display:none"></div>
+  </div>
+</section>
+
+<!-- JOURNAL -->
+<section class="view" id="v-journal">
+  <h1>Journal</h1>
+  <input id="search" placeholder="Search your reflections…" style="margin-top:12px">
+  <div class="card" id="entries"></div>
+</section>
+
+<!-- JOURNEY -->
+<section class="view" id="v-journey">
+  <h1>Your journey</h1>
+  <div class="card" style="text-align:center">
+    <div class="small muted">Your title</div>
+    <div class="rk" id="rankBig"></div>
+    <div class="small muted" id="rankNext"></div>
+  </div>
+  <div class="card"><div class="stats">
+    <div class="stat"><b id="stStreak">0</b><span>day streak</span></div>
+    <div class="stat"><b id="stBest">0</b><span>best streak</span></div>
+    <div class="stat"><b id="stDays">0</b><span>days read</span></div>
+    <div class="stat"><b id="stCh">0</b><span>chapters</span></div>
+    <div class="stat"><b id="stPts">0</b><span>points earned</span></div>
+    <div class="stat"><b id="stShield">0</b><span>grace days</span></div>
+  </div></div>
+  <div class="card"><h3>Last 12 weeks</h3><div class="heat" id="heat"></div>
+    <p class="small muted" style="margin:8px 0 0">Gold = read · dashed = covered by a Grace Day</p></div>
+  <div class="card"><h3 style="margin-bottom:12px">Milestones</h3><div class="badges" id="badges"></div></div>
+
+  <div class="card" id="remCard">
+    <h3>⏰ Reminders until you read</h3>
+    <p class="small muted">An iPhone web app can't send notifications by itself, so Lamp uses Apple's free <b>Shortcuts</b> app. Your iPhone checks several times a day and only reminds you if you haven't tapped <b>Stop today's reminders</b> yet. Set it up once (about 10 minutes):</p>
+    <details><summary class="btn ghost sm">Show setup steps</summary>
+    <p><b>A. Shortcut “Lamp Done”</b></p>
+    <ol class="howto">
+      <li>Open <b>Shortcuts</b> → tap <b>+</b>. Name it exactly <code>Lamp Done</code>.</li>
+      <li>Add action <b>Format Date</b>. Set Date to <b>Current Date</b>, Date Format <b>Custom</b>, format <code>yyyy-MM-dd</code>.</li>
+      <li>Add action <b>Save File</b>. Turn <b>Ask Where to Save</b> off. Set Subpath to <code>lamp-done.txt</code> and turn <b>Overwrite If File Exists</b> on.</li>
+      <li>Add action <b>Show Notification</b>: <code>Streak secured ✅ No more reminders today.</code> Tap Done.</li>
+      <li>Optional: long-press it → Share → <b>Add to Home Screen</b>.</li>
+    </ol>
+    <p><b>B. Shortcut “Lamp Check”</b></p>
+    <ol class="howto">
+      <li>New shortcut named <code>Lamp Check</code>.</li>
+      <li>Add <b>Get File from Folder</b>: Folder <b>Shortcuts</b>, File Path <code>lamp-done.txt</code>, and turn <b>Error If Not Found</b> off.</li>
+      <li>Add <b>Get Text from Input</b> (input: the File).</li>
+      <li>Add <b>Format Date</b>: Current Date, Custom, <code>yyyy-MM-dd</code>.</li>
+      <li>Add <b>If</b>: <i>Text</i> <b>does not contain</b> <i>Formatted Date</i>.</li>
+      <li>Inside the If, add <b>Show Notification</b>: <code>📖 Your Bible is waiting — keep your 🔥 streak alive!</code></li>
+    </ol>
+    <p><b>C. Automations (the repeating reminders)</b></p>
+    <ol class="howto">
+      <li>Shortcuts → <b>Automation</b> tab → <b>+</b> → <b>Time of Day</b>.</li>
+      <li>Pick <b>7:00 AM</b>, <b>Daily</b>, choose <b>Run Immediately</b>, then select <b>Lamp Check</b>.</li>
+      <li>Repeat for <b>10 AM, 1 PM, 4 PM, 7 PM and 9 PM</b> (or any times you like).</li>
+      <li>Test it: run Lamp Check now and you should get a reminder. Run Lamp Done, then run Lamp Check again. You shouldn't get one.</li>
+    </ol>
+    </details>
+    <a class="btn ghost sm" href="shortcuts://run-shortcut?name=Lamp%20Check" style="margin-top:8px">Test reminder</a>
+  </div>
+
+  <div class="card">
+    <h3>Settings</h3>
+    <label>Your name</label><input id="nameInput" placeholder="So I can greet you">
+    <label>Theme</label><select id="themeSel"></select>
+    <p class="small muted" id="syncNote">Saved on this device.</p>
+    <div class="row wrap">
+      <button class="btn ghost sm" id="exportBtn">Copy backup</button>
+      <button class="btn ghost sm" id="importBtn">Restore backup</button>
+    </div>
+    <button class="btn ghost sm" id="resetBtn" style="margin-top:12px;color:var(--accent)">Erase everything</button>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button data-v="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>Today<i class="dot" id="navDot"></i></button>
+  <button data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>Plan</button>
+  <button data-v="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/></svg>Play</button>
+  <button data-v="journal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Journal</button>
+  <button data-v="journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg>Journey</button>
+</nav>
+
+<div class="overlay" id="overlay"><div class="card" id="ovCard"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DATA ================= */
+const BOOKS=[
+["Genesis",50,"Beginnings — creation, the fall, the flood, and God's promise to Abraham's family."],
+["Exodus",40,"God rescues Israel from slavery in Egypt and meets them at Mount Sinai."],
+["Leviticus",27,"How a holy God dwells among His people — sacrifice, priesthood, and holiness."],
+["Numbers",36,"Israel's wilderness years: grumbling, judgment, and God's patient faithfulness."],
+["Deuteronomy",34,"Moses' farewell sermons as Israel stands at the edge of the promised land."],
+["Joshua",24,"Israel crosses the Jordan and settles the land God promised."],
+["Judges",21,"A repeating cycle: sin, oppression, crying out, and rescue."],
+["Ruth",4,"A loyal foreigner finds a redeemer — and joins the family line of King David."],
+["1 Samuel",31,"From judges to kings: Samuel, Saul, and a shepherd boy named David."],
+["2 Samuel",24,"David's reign — triumphs, failures, and God's everlasting covenant with him."],
+["1 Kings",22,"Solomon's glory, a kingdom torn in two, and the fiery prophet Elijah."],
+["2 Kings",25,"Elisha's miracles, a long line of kings, and the fall of Israel and Judah."],
+["1 Chronicles",29,"Israel's story retold, centered on David and the worship of God."],
+["2 Chronicles",36,"Solomon's temple and the kings of Judah, all the way to exile."],
+["Ezra",10,"Exiles return home to rebuild the temple and recommit to God's law."],
+["Nehemiah",13,"Rebuilding Jerusalem's walls against opposition — and renewing the covenant."],
+["Esther",10,"God is never named, yet His hand saves His people through a courageous queen."],
+["Job",42,"A righteous man suffers and wrestles honestly with God."],
+["Psalms",150,"Israel's songbook — praise, lament, and prayer for every season of life."],
+["Proverbs",31,"Practical wisdom for everyday life, rooted in the fear of the LORD."],
+["Ecclesiastes",12,"A search for meaning “under the sun.”"],
+["Song of Solomon",8,"A poem celebrating love between bride and bridegroom."],
+["Isaiah",66,"Judgment and comfort, and stunning visions of the coming Servant-King."],
+["Jeremiah",52,"The weeping prophet warns Judah and promises a new covenant."],
+["Lamentations",5,"Grief over Jerusalem's fall — with hope in God's new-every-morning mercies."],
+["Ezekiel",48,"Visions of God's glory, judgment, dry bones, and a restored people."],
+["Daniel",12,"Faithfulness in a foreign land and visions of God's unshakable kingdom."],
+["Hosea",14,"A prophet's marriage pictures God's love for His unfaithful people."],
+["Joel",3,"A locust plague and the promise of God's Spirit poured out on all flesh."],
+["Amos",9,"A shepherd-prophet calls for justice and true worship."],
+["Obadiah",1,"Judgment on Edom for its pride against Judah."],
+["Jonah",4,"A reluctant prophet, a great fish, and God's surprising mercy for Nineveh."],
+["Micah",7,"Do justly, love mercy, walk humbly — and a ruler from Bethlehem."],
+["Nahum",3,"The fall of mighty Nineveh."],
+["Habakkuk",3,"A prophet questions God and learns that the just shall live by faith."],
+["Zephaniah",3,"The day of the LORD — and a God who rejoices over His people with singing."],
+["Haggai",2,"Rebuild the temple — put God first."],
+["Zechariah",14,"Visions of restoration and a King who comes riding on a donkey."],
+["Malachi",4,"A final call to return to God before four hundred years of silence."],
+["Matthew",28,"Jesus the promised King, fulfilling the Scriptures."],
+["Mark",16,"The fast-moving Gospel of Jesus, the Servant who came to give His life."],
+["Luke",24,"A careful, orderly account of Jesus, the Savior for all people."],
+["John",21,"Signs and sayings written “that ye might believe.”"],
+["Acts",28,"The Spirit-filled church spreads from Jerusalem to Rome."],
+["Romans",16,"Paul's grand explanation of the gospel of grace."],
+["1 Corinthians",16,"Wisdom for a divided church — including the great chapter on love."],
+["2 Corinthians",13,"Paul's heartfelt letter about strength made perfect in weakness."],
+["Galatians",6,"Freedom in Christ — saved by grace, not by works of the law."],
+["Ephesians",6,"Who we are in Christ, and how to live as His body."],
+["Philippians",4,"Joy in Christ — written from a prison cell."],
+["Colossians",4,"Christ is supreme over all things."],
+["1 Thessalonians",5,"Encouragement for a young church and hope in Christ's return."],
+["2 Thessalonians",3,"Stand firm and keep working while you wait."],
+["1 Timothy",6,"Guidance for leading a church well."],
+["2 Timothy",4,"Paul's last letter: guard the gospel and finish the race."],
+["Titus",3,"Sound teaching that leads to good works."],
+["Philemon",1,"A personal plea to welcome a runaway slave as a brother."],
+["Hebrews",13,"Jesus is greater — our High Priest and the better covenant."],
+["James",5,"Real faith shows itself in action."],
+["1 Peter",5,"Living hope and holiness for believers who suffer."],
+["2 Peter",3,"Grow in grace and beware of false teachers."],
+["1 John",5,"Assurance through truth, obedience, and love."],
+["2 John",1,"Walk in truth and love."],
+["3 John",1,"Support those who work for the truth."],
+["Jude",1,"Contend for the faith."],
+["Revelation",22,"Visions of the risen Christ and His final victory."]
+];
+const USFM="GEN EXO LEV NUM DEU JOS JDG RUT 1SA 2SA 1KI 2KI 1CH 2CH EZR NEH EST JOB PSA PRO ECC SNG ISA JER LAM EZK DAN HOS JOL AMO OBA JON MIC NAM HAB ZEP HAG ZEC MAL MAT MRK LUK JHN ACT ROM 1CO 2CO GAL EPH PHP COL 1TH 2TH 1TI 2TI TIT PHM HEB JAS 1PE 2PE 1JN 2JN 3JN JUD REV".split(" ");
+const nlt=(b,c,v)=>`https://www.bible.com/bible/116/${USFM[b]}.${c}${v?"."+v:""}.NLT`;
+const CH=[];BOOKS.forEach((b,bi)=>{for(let c=1;c<=b[1];c++)CH.push([bi,c])});
+const B=n=>BOOKS.findIndex(b=>b[0]===n);
+const chs=(a,z,skip=[])=>CH.filter(x=>x[0]>=B(a)&&x[0]<=B(z)&&!skip.includes(x[0]));
+const PLANS=[
+ {id:"year",name:"Bible in a Year — Daily Mix",desc:"365 days. Each day: Old Testament + New Testament + a Psalm or Proverb on most days. The whole Bible by this time next year.",days:365,
+   streams:[chs("Genesis","Malachi",[B("Psalms"),B("Proverbs")]),chs("Matthew","Revelation"),chs("Psalms","Proverbs")]},
+ {id:"year2",name:"Bible in a Year — Cover to Cover",desc:"365 days, straight from Genesis 1 to Revelation 22.",days:365,streams:[chs("Genesis","Revelation")]},
+ {id:"nt90",name:"New Testament in 90 days",desc:"All 260 chapters, about 3 a day.",days:90,streams:[chs("Matthew","Revelation")]},
+ {id:"psaprov",name:"Psalms & Proverbs",desc:"Prayer and wisdom in 60 days.",days:60,streams:[chs("Psalms","Proverbs")]},
+ {id:"gospels",name:"Gospels & Acts",desc:"The life of Jesus and the early church in 40 days.",days:40,streams:[chs("Matthew","Acts")]},
+ {id:"john21",name:"Meet Jesus in John",desc:"One chapter a day for 21 days.",days:21,streams:[chs("John","John")]},
+];
+const VERSES=[
+["Thy word is a lamp unto my feet, and a light unto my path.","Psalm 119:105"],
+["This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.","Joshua 1:8"],
+["All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness.","2 Timothy 3:16"],
+["For the word of God is quick, and powerful, and sharper than any twoedged sword, piercing even to the dividing asunder of soul and spirit, and of the joints and marrow, and is a discerner of the thoughts and intents of the heart.","Hebrews 4:12"],
+["But his delight is in the law of the LORD; and in his law doth he meditate day and night.","Psalm 1:2"],
+["Man shall not live by bread alone, but by every word that proceedeth out of the mouth of God.","Matthew 4:4"],
+["The grass withereth, the flower fadeth: but the word of our God shall stand for ever.","Isaiah 40:8"],
+["But be ye doers of the word, and not hearers only, deceiving your own selves.","James 1:22"],
+["Thy word have I hid in mine heart, that I might not sin against thee.","Psalm 119:11"],
+["If ye continue in my word, then are ye my disciples indeed; and ye shall know the truth, and the truth shall make you free.","John 8:31–32"],
+["For whatsoever things were written aforetime were written for our learning, that we through patience and comfort of the scriptures might have hope.","Romans 15:4"],
+["Thy words were found, and I did eat them; and thy word was unto me the joy and rejoicing of mine heart.","Jeremiah 15:16"],
+["Open thou mine eyes, that I may behold wondrous things out of thy law.","Psalm 119:18"],
+["It is of the LORD's mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.","Lamentations 3:22–23"],
+["Be still, and know that I am God.","Psalm 46:10"],
+["Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.","Proverbs 3:5–6"],
+["Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.","Isaiah 41:10"],
+["Come unto me, all ye that labour and are heavy laden, and I will give you rest.","Matthew 11:28"],
+["I can do all things through Christ which strengtheneth me.","Philippians 4:13"],
+["I am the vine, ye are the branches: He that abideth in me, and I in him, the same bringeth forth much fruit: for without me ye can do nothing.","John 15:5"],
+["O taste and see that the LORD is good: blessed is the man that trusteth in him.","Psalm 34:8"],
+["And ye shall seek me, and find me, when ye shall search for me with all your heart.","Jeremiah 29:13"],
+["O God, thou art my God; early will I seek thee: my soul thirsteth for thee.","Psalm 63:1"],
+["But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.","Matthew 6:33"],
+["How sweet are thy words unto my taste! yea, sweeter than honey to my mouth!","Psalm 119:103"],
+["In the beginning was the Word, and the Word was with God, and the Word was God.","John 1:1"],
+["The law of the LORD is perfect, converting the soul: the testimony of the LORD is sure, making wise the simple.","Psalm 19:7"],
+["Let the word of Christ dwell in you richly in all wisdom.","Colossians 3:16"],
+["So then faith cometh by hearing, and hearing by the word of God.","Romans 10:17"],
+["The entrance of thy words giveth light; it giveth understanding unto the simple.","Psalm 119:130"],
+["So shall my word be that goeth forth out of my mouth: it shall not return unto me void, but it shall accomplish that which I please.","Isaiah 55:11"],
+["As newborn babes, desire the sincere milk of the word, that ye may grow thereby.","1 Peter 2:2"],
+["And be not conformed to this world: but be ye transformed by the renewing of your mind.","Romans 12:2"],
+["Thou wilt shew me the path of life: in thy presence is fulness of joy; at thy right hand there are pleasures for evermore.","Psalm 16:11"],
+["And let us not be weary in well doing: for in due season we shall reap, if we faint not.","Galatians 6:9"],
+["O how love I thy law! it is my meditation all the day.","Psalm 119:97"],
+["For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.","John 3:16"],
+["The LORD is my shepherd; I shall not want.","Psalm 23:1"],
+["Jesus Christ the same yesterday, and to day, and for ever.","Hebrews 13:8"],
+["Rejoice in the Lord alway: and again I say, Rejoice.","Philippians 4:4"],
+];
+const LOOKFOR=["Who is speaking here, and to whom?","What does this passage show you about God's character?","Find one promise you can hold onto today.","Find one command you can obey today.","Is there a word or phrase that repeats? Why might it matter?","Which verse surprised you or raised a question?","Is there an example to follow — or a warning to heed?","Where do you see God's grace in this passage?","If you had to give today's reading a title, what would it be?","What does this reveal about human nature?","How does this point to Jesus?","What would change today if you truly believed this?","Pick one verse to carry with you all day.","What question would you ask the writer if you could?","What are the people in this passage feeling?","Is there something here to thank God for?","Is there a sin to confess or a habit to change?","What bigger story does this passage fit into?","Read one verse slowly three times. What stands out more each time?","How would you explain this passage to a child?","What does this passage teach about prayer?","Where is the hope in this passage?","What did it cost someone to obey God here?","Sum up the reading in one sentence.","Which person in this passage are you most like today?","What is God doing here that only He can do?","Is there a name or title of God here? What does it mean?","How do today's Old and New Testament readings connect?"];
+const RANKS=["Seeker","Listener","Learner","Disciple","Faithful Servant","Lamp Bearer","Watchman","Shepherd","Steward","Pillar","Elder","Pilgrim","Overcomer","Ambassador","Fruitful Vine","Good & Faithful","Light of the World","Salt of the Earth","Pillar of Fire","Psalmist","Prophet's Heart","Apostle's Zeal","Crown of Life"];
+const PACKS={
+ basics:{n:"Faith Basics",w:["GRACE","FAITH","HOPE","LOVE","PEACE","MERCY","PRAYER","PRAISE","BIBLE","CROSS","JESUS","SPIRIT","HEAVEN","ANGEL","GLORY","TRUTH","LIGHT","PSALM","AMEN","BLESS","SAVIOR","GOSPEL"]},
+ fruit:{n:"Fruit of the Spirit",w:["LOVE","JOY","PEACE","PATIENCE","KINDNESS","GOODNESS","MEEKNESS","FAITH","GENTLENESS","TEMPERANCE","SELFCONTROL"]},
+ books:{n:"Books of the Bible",w:["GENESIS","EXODUS","NUMBERS","RUTH","ESTHER","JOB","PSALMS","PROVERBS","ISAIAH","DANIEL","JONAH","MICAH","MATTHEW","MARK","LUKE","JOHN","ACTS","ROMANS","JAMES","JUDE","HEBREWS","LEVITICUS","NEHEMIAH","GALATIANS"]},
+ prophets:{n:"Prophets",w:["ISAIAH","JEREMIAH","EZEKIEL","DANIEL","HOSEA","JOEL","AMOS","OBADIAH","JONAH","MICAH","NAHUM","HABAKKUK","ELIJAH","ELISHA","SAMUEL","NATHAN","MALACHI","HAGGAI"]},
+ apostles:{n:"Apostles & Disciples",w:["PETER","ANDREW","JAMES","JOHN","PHILIP","THOMAS","MATTHEW","SIMON","PAUL","BARNABAS","TIMOTHY","SILAS","STEPHEN","MARK","LUKE","MATTHIAS","TITUS"]},
+ women:{n:"Women of the Bible",w:["EVE","SARAH","REBEKAH","RACHEL","LEAH","MIRIAM","RUTH","NAOMI","HANNAH","DEBORAH","ESTHER","MARY","MARTHA","ELIZABETH","ANNA","LYDIA","DORCAS","ABIGAIL","PRISCILLA"]},
+ places:{n:"Bible Places",w:["EDEN","BABEL","EGYPT","SINAI","JORDAN","JERICHO","CANAAN","ZION","BETHLEHEM","NAZARETH","GALILEE","JERUSALEM","CALVARY","BETHANY","ROME","CORINTH","PATMOS","NINEVEH"]},
+};
+const THEMES={parchment:"Parchment",olive:"Olive Grove",purple:"Royal Purple",galilee:"Sea of Galilee",night:"Starry Night"};
+const SHOP=[
+ {id:"ws2",n:"Word Search · Level 2",d:"10×10 grid, more words, diagonals",c:120},
+ {id:"ws3",n:"Word Search · Level 3",d:"12×12 grid, words hidden backwards too",c:300,req:"ws2"},
+ {id:"vb2",n:"Verse Builder · Level 2",d:"Longer verses",c:100},
+ {id:"vb3",n:"Verse Builder · Level 3",d:"Full-length verses, no reference hint",c:250,req:"vb2"},
+ {id:"bo2",n:"Books in Order · Level 2",d:"Sort 6 books",c:80},
+ {id:"bo3",n:"Books in Order · Level 3",d:"Sort 9 books",c:200,req:"bo2"},
+ {id:"pk-books",n:"Word pack: Books of the Bible",d:"New Word Search words",c:60},
+ {id:"pk-prophets",n:"Word pack: Prophets",d:"New Word Search words",c:80},
+ {id:"pk-apostles",n:"Word pack: Apostles & Disciples",d:"New Word Search words",c:80},
+ {id:"pk-women",n:"Word pack: Women of the Bible",d:"New Word Search words",c:80},
+ {id:"pk-places",n:"Word pack: Bible Places",d:"New Word Search words",c:80},
+ {id:"th-olive",n:"Theme: Olive Grove",d:"Calm greens",c:60},
+ {id:"th-purple",n:"Theme: Royal Purple",d:"Regal and rich",c:60},
+ {id:"th-galilee",n:"Theme: Sea of Galilee",d:"Cool blues",c:60},
+ {id:"th-night",n:"Theme: Starry Night",d:"Dark mode with gold",c:90},
+ {id:"shield",n:"Grace Day 🛡️",d:"Protects your streak if you miss a single day",c:150,multi:true},
+];
+
+/* ================= STATE ================= */
+const KEY="lamp-v2";
+const blank=()=>({name:"",plan:"year",day:0,planStart:"",days:{},graced:{},chapters:0,journal:[],points:0,earned:0,owned:[],theme:"parchment",
+  shields:0,decades:0,gameDay:{},memDay:"",prayed:"",seen:[],plansDone:0,pack:"basics",ticks:{d:"",c:[]},updated:0});
+let S;
+try{S=Object.assign(blank(),JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){S=blank()}
+let DB=null,dirty=new Set(),syncT=null,syncing=false,again=false;
+function save(){S.updated=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}queueSync()}
+function queueSync(){if(!DB)return;clearTimeout(syncT);syncT=setTimeout(sync,1500)}
+async function sync(){
+  if(!DB)return;if(syncing){again=true;return}syncing=true;
+  try{const st=JSON.parse(JSON.stringify(S));delete st.journal;await DB.doc("state").set(st);
+    for(const m of [...dirty]){dirty.delete(m);await DB.doc(m).set({entries:S.journal.filter(e=>mkey(e.date)===m)})}
+    $("syncNote").textContent="✓ Saved to your Claude account — safe even if you clear Safari.";
+  }catch(e){$("syncNote").textContent="Saved on this device (account sync paused)."}
+  syncing=false;if(again){again=false;sync()}
+}
+const mkey=d=>"j-"+d.slice(0,7);
+async function initDB(tries=0){
+  try{
+    if(!window.claude||!window.claude.use){if(tries<5)setTimeout(()=>initDB(tries+1),800);return}
+    const [d,u]=await Promise.all([window.claude.use("db"),window.claude.use("user")]);
+    if(!d||!u)return;const id=await u.id();if(!id)return;
+    const col=d.collection("data/users/"+id);
+    const snap=await col.get();let remote=null;const months={};
+    snap.docs.forEach(x=>{const v=x.data();if(x.id==="state")remote=v;else if(x.id.startsWith("j-"))months[x.id]=(v&&v.entries)||[]});
+    DB=col;
+    if(remote&&(remote.updated||0)>(S.updated||0)){
+      const j=[].concat(...Object.values(months)).sort((a,b)=>b.id-a.id);
+      S=Object.assign(blank(),remote,{journal:j});try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+      renderAll();
+    }else if(S.updated){S.journal.forEach(e=>dirty.add(mkey(e.date)));Object.keys(months).forEach(m=>dirty.add(m));sync()}
+    $("syncNote").textContent="✓ Saved to your Claude account — safe even if you clear Safari.";
+  }catch(e){}
+}
+
+/* ================= HELPERS ================= */
+function $(id){return document.getElementById(id)}
+const pad=n=>String(n).padStart(2,"0");
+const key=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+function today(){return key(new Date())}
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const parse=k=>new Date(k+"T12:00");
+const diff=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const doy=()=>{const n=new Date();return Math.floor((n-new Date(n.getFullYear(),0,0))/864e5)};
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rand=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const plan=()=>PLANS.find(p=>p.id===S.plan)||PLANS[0];
+const has=id=>S.owned.includes(id);
+const level=g=>has(g+"3")?3:has(g+"2")?2:1;
+function chunk(p,d){return p.streams.map(st=>st.slice(Math.ceil(d*st.length/p.days),Math.ceil((d+1)*st.length/p.days))).filter(s=>s.length)}
+function seg(s){const a=s[0],z=s[s.length-1];let an=BOOKS[a[0]][0],zn=BOOKS[z[0]][0];if(an==="Psalms")an="Psalm";if(zn==="Psalms")zn="Psalm";
+  if(a[0]===z[0])return a[1]===z[1]?`${an} ${a[1]}`:`${an} ${a[1]}–${z[1]}`;return `${an} ${a[1]} – ${zn} ${z[1]}`}
+const label=segs=>segs.map(seg).join(" · ");
+const count=segs=>segs.reduce((n,s)=>n+s.length,0);
+const isRead=k=>!!(S.days[k]||S.graced[k]);
+function streak(){let d=new Date(),n=0;if(!isRead(key(d)))d=addDays(d,-1);while(isRead(key(d))){if(S.days[key(d)])n++;else n++;d=addDays(d,-1)}return n}
+function best(){const ks=[...new Set([...Object.keys(S.days),...Object.keys(S.graced)])].sort();let b=0,c=0,p=null;ks.forEach(k=>{c=(p&&diff(p,k)===1)?c+1:1;b=Math.max(b,c);p=k});return b}
+const daysRead=()=>Object.keys(S.days).length;
+const rank=k=>k<RANKS.length?RANKS[k]:RANKS[RANKS.length-1]+" "+"★".repeat(Math.min(5,k-RANKS.length+1));
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2600)}
+function confetti(n=60){const c=["#b8862b","#7a3b2e","#e0b35a","#4f7a3a","#8fb1ff","#f1e2bf"];for(let i=0;i<n;i++){const s=document.createElement("i");s.className="spark";s.style.left=Math.random()*100+"vw";s.style.top=(-10-Math.random()*30)+"px";s.style.background=c[i%c.length];s.style.animationDelay=Math.random()*.5+"s";document.body.appendChild(s);setTimeout(()=>s.remove(),2400)}}
+
+/* modal dialog: returns Promise of value / true / null */
+const queue=[];let modalOpen=false;
+function dialog(o){return new Promise(res=>{queue.push({o,res});if(!modalOpen)nextDialog()})}
+function nextDialog(){
+  const it=queue.shift();if(!it){modalOpen=false;$("overlay").classList.remove("on");return}
+  modalOpen=true;const {o,res}=it;
+  $("ovCard").innerHTML=`${o.icon?`<div style="font-size:44px">${o.icon}</div>`:""}<h2>${esc(o.title||"")}</h2>
+   ${o.html?o.html:`<p class="muted">${esc(o.text||"")}</p>`}
+   ${o.input!=null?`<${o.area?"textarea":"input"} id="dlgIn" placeholder="${esc(o.placeholder||"")}" style="margin:6px 0 12px">${o.area?"":""}${o.area?"</textarea>":""}`:""}
+   <div class="row" style="justify-content:center;margin-top:8px">${o.cancel?`<button class="btn ghost" id="dlgNo">${esc(o.cancel)}</button>`:""}<button class="btn gold" id="dlgOk">${esc(o.ok||"Amen")}</button></div>`;
+  $("overlay").classList.add("on");
+  const inp=$("dlgIn");if(inp){inp.value=o.input||"";setTimeout(()=>inp.focus(),50)}
+  $("dlgOk").onclick=()=>{res(inp?inp.value:true);nextDialog()};
+  if($("dlgNo"))$("dlgNo").onclick=()=>{res(null);nextDialog()};
+}
+
+/* ================= POINTS & REWARDS ================= */
+function addPts(n,why){if(n<=0)return;S.points+=n;S.earned+=n;if(why)toast(`+${n} ⭐ ${why}`)}
+function checkDecade(){
+  const k=Math.floor(daysRead()/10);
+  while(S.decades<k){S.decades++;const bonus=Math.min(50+10*(S.decades-1),150);addPts(bonus);S.shields++;
+    confetti(110);
+    dialog({icon:"🎁",title:`${S.decades*10} days in the Word!`,html:`<p>You've unlocked a reward:</p>
+      <p><b>+${bonus} ⭐ points</b><br><b>+1 Grace Day 🛡️</b><br>New title: <b>${esc(rank(S.decades))}</b></p>
+      <p class="muted small">“And let us not be weary in well doing: for in due season we shall reap, if we faint not.” — Galatians 6:9</p>`,ok:"Claim reward"});}
+}
+/* use a grace day automatically if exactly yesterday was missed */
+function applyGrace(){
+  const y=key(addDays(new Date(),-1)),y2=key(addDays(new Date(),-2));
+  if(!isRead(y)&&isRead(y2)&&S.shields>0&&!S.days[today()]){
+    S.shields--;S.graced[y]=1;save();
+    dialog({icon:"🛡️",title:"Grace Day used",text:"You missed yesterday, so a Grace Day covered it. Your streak is safe. Read today to keep it growing!",ok:"Thank you, Lord"});
+  }
+}
+
+/* ================= TODAY ================= */
+let mem=0,ahead=false;const verse=VERSES[doy()%VERSES.length];
+function renderVerse(){
+  const words=verse[0].split(" ");
+  $("votd").innerHTML=words.map((w,i)=>{const hide=mem===3||(mem===1&&i%3===1)||(mem===2&&i%3!==0);
+    if(!hide)return `<span class="w">${esc(w)}</span>`;
+    const m=w.match(/^([^A-Za-z]*)([A-Za-z])(.*?)([^A-Za-z]*)$/);const mk=m?m[1]+m[2]+m[3].replace(/./g,"_")+m[4]:w;
+    return `<span class="w h" data-w="${esc(w)}">${esc(mk)}</span>`}).join("");
+  $("votdRef").textContent="— "+verse[1]+" (KJV)";
+  {const m=verse[1].match(/^(.+) (\d+):(\d+)/);if(m){const bi=B(m[1]==="Psalm"?"Psalms":m[1]);if(bi>=0)$("votdNlt").href=nlt(bi,m[2],m[3])}}
+  $("memMore").textContent=mem===3?"I said it from memory ✓":"Hide more";
+}
+$("votd").onclick=e=>{const t=e.target.closest(".w.h");if(t){t.textContent=t.dataset.w;t.classList.remove("h")}};
+$("memBtn").onclick=()=>{const c=$("memCtrl"),on=c.style.display==="none";c.style.display=on?"block":"none";mem=on?1:0;renderVerse()};
+$("memMore").onclick=()=>{if(mem<3){mem++;renderVerse()}else{if(S.memDay!==today()){S.memDay=today();addPts(3,"verse memorized!");save();renderHeader()}else toast("Beautiful! Keep saying it today.");confetti(30);mem=0;$("memCtrl").style.display="none";renderVerse()}};
+$("memLess").onclick=()=>{if(mem>0){mem--;renderVerse()}};
+
+function renderHeader(){
+  const h=new Date().getHours(),g=h<12?"Good morning":h<17?"Good afternoon":"Good evening";
+  $("greet").textContent=S.name?`${g}, ${S.name}`:g;
+  $("dateLine").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+  $("streakNum").textContent=streak();$("ptsNum").textContent=S.points;$("ptsNum2").textContent=S.points;
+  const read=!!S.days[today()];
+  $("navDot").style.display=read?"none":"block";
+  const st=streak(),hr=new Date().getHours();
+  $("nag").style.display=read?"none":"block";
+  $("nag").textContent=st>0?(hr>=19?`⏰ Only a few hours left to keep your ${st}-day streak!`:`⏰ Today's reading is waiting. Keep your ${st}-day streak alive!`):"⏰ Today's reading is waiting for you.";
+  const dr=daysRead(),into=dr%10;
+  $("rewardBar").style.width=(into*10)+"%";
+  $("rewardText").textContent=`${10-into} more reading day${10-into===1?"":"s"} until your next reward chest 🎁 (points + Grace Day + new title)`;
+  $("rankLine").textContent="Title: "+rank(S.decades);
+}
+function renderToday(){
+  renderHeader();renderVerse();
+  const p=plan(),read=!!S.days[today()];
+  if(S.day>=p.days){$("reading").textContent="Plan complete! 🎉";$("bookIntro").textContent="Choose your next plan in the Plan tab.";$("dayOf").textContent="";}
+  else{const c=chunk(p,S.day);$("reading").textContent=label(c);
+    $("dayOf").textContent=`· Day ${S.day+1} of ${p.days}`;
+    const bks=[...new Set(c.flatMap(s=>s.filter(x=>x[1]===1||x===s[0]).map(x=>x[0])))];
+    if(!S.ticks||S.ticks.d!==today())S.ticks={d:today(),c:[]};
+    const all=c.flat(),done=all.filter(x=>S.ticks.c.includes(x[0]+"."+x[1])).length;
+    $("chapList").innerHTML=all.map(x=>{const k=x[0]+"."+x[1],ok=S.ticks.c.includes(k),nm=BOOKS[x[0]][0]==="Psalms"?"Psalm":BOOKS[x[0]][0];
+      return `<span class="chap ${ok?"ok":""}"><a href="${nlt(x[0],x[1])}" target="_blank" rel="noopener">${esc(nm)} ${x[1]}</a><button data-k="${k}" aria-label="Mark read">${ok?"✓":"○"}</button></span>`}).join("");
+    $("chapHint").innerHTML=done===all.length?"<b>All chapters read!</b> Finish with step 3 and 4 below. 🙌":`Tap a chapter to read it in the <b>NLT</b>, then tick ✓ when finished · <b>${done} of ${all.length}</b> read`;
+    $("bookIntro").innerHTML=bks.map(b=>`<b>${esc(BOOKS[b][0])}:</b> ${esc(BOOKS[b][2])}`).join("<br>");}
+  $("lookfor").textContent=LOOKFOR[(doy()+S.day)%LOOKFOR.length];
+  const pr=S.prayed===today();$("s1").classList.toggle("done",pr);$("prayBtn").textContent=pr?"Prayed ✓":"I've prayed — let's begin";
+  $("todayCard").style.display=read&&!ahead?"none":"block";
+  $("doneCard").style.display=read&&!ahead?"block":"none";
+  $("doneBtn").innerHTML=read?'Mark this reading done ✓ <span style="opacity:.8">+5 ⭐</span>':'I\'ve read today ✓ <span style="opacity:.8">+10 ⭐</span>';
+  if(read)$("doneMsg").textContent=`You've earned your points for today. Games are unlocked! Come back tomorrow for Day ${Math.min(S.day+1,p.days)}.`;
+}
+$("chapList").onclick=e=>{const b=e.target.closest("button[data-k]");if(!b)return;const k=b.dataset.k,i=S.ticks.c.indexOf(k);
+  if(i<0)S.ticks.c.push(k);else S.ticks.c.splice(i,1);save();renderToday();
+  const all=chunk(plan(),S.day).flat();if(i<0&&all.every(x=>S.ticks.c.includes(x[0]+"."+x[1]))&&!S.days[today()]){confetti(40);toast("All chapters read! Tap “I've read today” to claim your points.")}};
+$("prayBtn").onclick=()=>{if(S.prayed!==today()){S.prayed=today();addPts(2,"for prayer");save()}renderToday()};
+$("aheadBtn").onclick=()=>{ahead=true;renderToday();scrollTo({top:0,behavior:"smooth"})};
+$("playBtn").onclick=()=>go("play");
+
+function takeJournal(ref){
+  const e={s:$("jS").value.trim(),o:$("jO").value.trim(),a:$("jA").value.trim(),p:$("jP").value.trim()};
+  if(!(e.s||e.o||e.a||e.p))return false;
+  S.journal.unshift({id:Date.now(),date:today(),ref,...e});dirty.add(mkey(today()));
+  ["jS","jO","jA","jP"].forEach(i=>$(i).value="");return true;
+}
+function finishDay(n,ref){
+  const first=!S.days[today()],st0=streak();
+  const wrote=takeJournal(ref);
+  S.days[today()]=(S.days[today()]||0)+n;S.chapters+=n;
+  let pts=first?10:5;if(wrote)pts+=5;const st=streak();if(first&&st>=2)pts+=Math.min(st,10);
+  addPts(pts);ahead=false;save();confetti();
+  const msgs=[];msgs.push(`+${pts} ⭐ earned`+(first&&st>=2?` (incl. ${Math.min(st,10)} streak bonus)`:""));
+  dialog({icon:first&&st>st0&&st>1?"🔥":"✨",title:first?(st>1?`${st} days in a row!`:"Well done!"):"Extra reading!",
+    html:`<p><b>${msgs[0]}</b></p><p class="muted" style="font-family:var(--serif)">“${esc(verse[0])}” — ${esc(verse[1])}</p>
+    ${first?`<p class="small">Now tap <b>Stop today's reminders</b> so your phone stops nudging you.</p>`:""}`});
+  const hit=MILESTONES.find(m=>mval(m)>=m.n&&!S.seen.includes(m.l));
+  if(hit){S.seen.push(hit.l);dialog({icon:"🏅",title:"Milestone: "+hit.l,text:"“Well done, thou good and faithful servant.” — Matthew 25:21"})}
+  checkDecade();save();renderAll();
+}
+$("doneBtn").onclick=()=>{
+  const p=plan();if(S.day>=p.days){toast("Plan complete — pick a new plan in the Plan tab.");return}
+  const c=chunk(p,S.day);S.day++;
+  if(S.day>=p.days){S.plansDone++;dialog({icon:"🏆",title:`You finished “${p.name}”!`,text:"What a faithful journey. Choose your next plan in the Plan tab."});addPts(100,"plan finished!")}
+  finishDay(count(c),label(c));
+};
+$("otherBtn").onclick=async()=>{
+  const r=await dialog({title:"What did you read?",input:"",placeholder:"e.g. Psalm 23",ok:"Next",cancel:"Cancel"});if(r===null)return;
+  const n=await dialog({title:"How many chapters?",input:"1",ok:"Save",cancel:"Cancel"});if(n===null)return;
+  finishDay(Math.max(1,parseInt(n,10)||1),r.trim()||"Personal reading");
+};
+
+/* ================= PLAN ================= */
+function renderPlan(){
+  const p=plan(),pct=Math.min(100,Math.round(S.day/p.days*100));
+  $("planName").textContent=p.name;$("planPct").textContent=pct+"%";$("planBar").style.width=pct+"%";
+  $("planInfo").textContent=S.day>=p.days?"Complete! Choose another plan below.":`Next: Day ${S.day+1} of ${p.days} — ${label(chunk(p,S.day))}`;
+  const expected=Math.min(p.days,diff(S.planStart,today())+1),gap=expected-S.day-(S.days[today()]?0:1);
+  const end=addDays(parse(S.planStart),p.days-1).toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"});
+  $("paceInfo").textContent=S.day>=p.days?"":(gap>0?`You're ${gap} reading${gap>1?"s":""} behind the calendar. No guilt — use “Read ahead” after today's reading to catch up.`:
+    gap<0?`You're ${-gap} reading${gap<-1?"s":""} ahead of schedule! 🎉`:"Right on schedule.")+` Finish date: ${end}.`;
+  let h="",lastM="";const todayIdx=S.day;
+  for(let d=0;d<p.days;d++){const dt=addDays(parse(S.planStart),d);const m=dt.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+    if(m!==lastM){h+=`<div class="month">${m}</div>`;lastM=m}
+    h+=`<div class="day ${d<S.day?"dn":""} ${d===todayIdx?"cur":""}" ${d===todayIdx?'id="curDay"':""}><span class="ck">${d<S.day?"✓":""}</span><span class="dt">Day ${d+1}<br>${dt.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</span><span class="lb">${esc(label(chunk(p,d)))}</span></div>`}
+  $("schedule").innerHTML=h;
+  $("planList").innerHTML=PLANS.map(x=>`<div class="plan ${x.id===p.id?"sel":""}" data-id="${x.id}"><div class="row between"><h3>${esc(x.name)}</h3><span class="tag">${x.days} days</span></div><p class="muted small" style="margin:6px 0 0">${esc(x.desc)}</p></div>`).join("");
+}
+$("jumpBtn").onclick=()=>{const c=$("curDay");if(c)c.scrollIntoView({behavior:"smooth",block:"center"})};
+$("planList").onclick=async e=>{
+  const el=e.target.closest(".plan");if(!el||el.dataset.id===S.plan)return;const p=PLANS.find(x=>x.id===el.dataset.id);
+  if(S.day>0&&S.day<plan().days&&!(await dialog({title:`Switch to “${p.name}”?`,text:"Your place in the current plan will reset. Streak, points and journal are kept.",ok:"Switch",cancel:"Cancel"})))return;
+  S.plan=p.id;S.day=0;S.planStart=today();save();renderAll();toast("Started “"+p.name+"”");
+};
+
+/* ================= PLAY ================= */
+function renderPlay(){
+  const open=!!S.days[today()];
+  $("playLocked").style.display=open?"none":"block";$("playOpen").style.display=open?"block":"none";
+  const lv=g=>`Level ${level(g)}`+(S.gameDay[g]===today()?" · today's bonus earned ✓":" · +5 ⭐ for first win today");
+  $("wsLv").textContent=lv("ws");$("vbLv").textContent=lv("vb");$("boLv").textContent=lv("bo");
+  $("shop").innerHTML=SHOP.map(it=>{const own=!it.multi&&has(it.id),locked=it.req&&!has(it.req);
+    return `<div class="shop"><div><b>${esc(it.n)}</b><div class="small muted">${esc(it.d)}${it.id==="shield"?` · you have ${S.shields}`:""}${locked?" · unlock the previous level first":""}</div></div>
+    ${own?'<span class="tag">Owned ✓</span>':`<button class="btn ${S.points>=it.c&&!locked?"gold":"ghost"} sm" data-buy="${it.id}" ${locked?"disabled":""}>⭐ ${it.c}</button>`}</div>`}).join("");
+}
+$("shop").onclick=async e=>{
+  const id=e.target.dataset&&e.target.dataset.buy;if(!id)return;const it=SHOP.find(x=>x.id===id);
+  if(S.points<it.c){toast(`You need ${it.c-S.points} more ⭐ — keep reading!`);return}
+  if(!(await dialog({title:"Buy "+it.n+"?",text:`This costs ${it.c} ⭐. You have ${S.points}.`,ok:"Buy",cancel:"Not now"})))return;
+  S.points-=it.c;if(it.id==="shield")S.shields++;else S.owned.push(it.id);
+  if(it.id.startsWith("th-"))S.theme=it.id.slice(3);
+  if(it.id.startsWith("pk-"))S.pack=it.id.slice(3);
+  save();applyTheme();renderAll();confetti(40);toast("Unlocked: "+it.n);
+};
+document.querySelectorAll(".game").forEach(g=>g.onclick=()=>startGame(g.dataset.game));
+function gameShell(title,body){$("gameMenu").style.display="none";const a=$("gameArea");a.style.display="block";
+  a.innerHTML=`<div class="row between" style="margin:10px 0"><button class="btn ghost sm" id="gBack">← Games</button><h2>${title}</h2><button class="btn ghost sm" id="gNew">New</button></div>${body}`;
+  $("gBack").onclick=closeGame;}
+function closeGame(){$("gameArea").style.display="none";$("gameMenu").style.display="block";renderPlay()}
+function win(g,title,text){
+  let bonus="";if(S.gameDay[g]!==today()){S.gameDay[g]=today();addPts(5);bonus="<p><b>+5 ⭐ first win today!</b></p>";save();renderHeader()}
+  confetti(70);dialog({icon:"🏆",title,html:`${bonus}<p class="muted">${text}</p>`,ok:"Play again"}).then(()=>startGame(g));
+}
+function startGame(g){({ws:wordSearch,vb:verseBuilder,bo:booksOrder})[g]()}
+
+/* --- Word search --- */
+function wordSearch(){
+  const lv=level("ws"),n=[8,10,12][lv-1],want=[5,7,9][lv-1];
+  let dirs=[[0,1],[1,0]];if(lv>=2)dirs.push([1,1],[-1,1]);if(lv>=3)dirs=dirs.concat(dirs.map(([a,b])=>[-a,-b]));
+  const packs=["basics","fruit",...Object.keys(PACKS).filter(k=>has("pk-"+k))];if(!packs.includes(S.pack))S.pack="basics";
+  const pool=shuffle([...new Set(PACKS[S.pack].w)].filter(w=>w.length<=n));
+  const grid=Array.from({length:n},()=>Array(n).fill(""));const placed=[];
+  for(const w of pool){if(placed.length>=want)break;
+    for(let t=0;t<200;t++){const [dr,dc]=dirs[rand(dirs.length)],r=rand(n),c=rand(n),er=r+dr*(w.length-1),ec=c+dc*(w.length-1);
+      if(er<0||er>=n||ec<0||ec>=n)continue;let ok=true;
+      for(let i=0;i<w.length;i++){const ch=grid[r+dr*i][c+dc*i];if(ch&&ch!==w[i]){ok=false;break}}
+      if(!ok)continue;const cells=[];for(let i=0;i<w.length;i++){grid[r+dr*i][c+dc*i]=w[i];cells.push((r+dr*i)*n+c+dc*i)}
+      placed.push({w,cells,f:false});break}}
+  const AZ="ABCDEFGHIJKLMNOPRSTUWY";const flat=grid.flat().map(ch=>ch||AZ[rand(AZ.length)]);
+  const size=Math.min(window.innerWidth-40,480);
+  gameShell("Word Search",`<div class="row between wrap"><select id="packSel" style="width:auto;padding:8px">${packs.map(k=>`<option value="${k}" ${k===S.pack?"selected":""}>${PACKS[k].n}</option>`).join("")}</select><span class="small muted">Level ${lv}</span></div>
+    <p class="small muted" style="margin:8px 0 0">Tap the first letter of a word, then its last letter.</p>
+    <div class="grid" id="wsg" style="grid-template-columns:repeat(${n},1fr);width:${size}px">${flat.map((ch,i)=>`<button data-i="${i}" style="font-size:${Math.max(11,Math.floor(size/n*.45))}px">${ch}</button>`).join("")}</div>
+    <div class="words" id="wsw">${placed.map((p,i)=>`<span data-k="${i}">${p.w}</span>`).join("")}</div>`);
+  $("gNew").onclick=wordSearch;$("packSel").onchange=e=>{S.pack=e.target.value;save();wordSearch()};
+  let start=null;const btns=[...$("wsg").children];
+  $("wsg").onclick=e=>{const b=e.target.closest("button");if(!b)return;const i=+b.dataset.i;
+    if(start===null){start=i;b.classList.add("sel");return}
+    btns[start].classList.remove("sel");
+    if(i===start){start=null;return}
+    const r0=Math.floor(start/n),c0=start%n,r1=Math.floor(i/n),c1=i%n,dr=Math.sign(r1-r0),dc=Math.sign(c1-c0),len=Math.max(Math.abs(r1-r0),Math.abs(c1-c0))+1;
+    const straight=r0===r1||c0===c1||Math.abs(r1-r0)===Math.abs(c1-c0);
+    if(straight){const cells=[];for(let k=0;k<len;k++)cells.push((r0+dr*k)*n+c0+dc*k);
+      const hit=placed.find(p=>!p.f&&(p.cells.join()===cells.join()||p.cells.slice().reverse().join()===cells.join()));
+      if(hit){hit.f=true;hit.cells.forEach(c=>btns[c].classList.add("f"));$("wsw").children[placed.indexOf(hit)].classList.add("f");
+        if(placed.every(p=>p.f))setTimeout(()=>win("ws","All words found!","Great eyes! Try the shop for bigger grids and new word packs."),300);
+        start=null;return}}
+    $("wsg").classList.add("shake");setTimeout(()=>$("wsg").classList.remove("shake"),350);start=null;
+  };
+}
+
+/* --- Verse builder --- */
+function verseBuilder(){
+  const lv=level("vb"),max=[14,24,99][lv-1],min=[0,10,18][lv-1];
+  const pool=VERSES.filter(v=>{const n=v[0].split(" ").length;return n<=max&&n>=min});
+  const v=pool[rand(pool.length)],words=v[0].split(" ");let pos=0,miss=0;
+  gameShell("Verse Builder",`<p class="small muted">Tap the words in the right order.${lv<3?` <b>${esc(v[1])}</b>`:" (Reference hidden at Level 3)"}</p>
+   <div class="answer" id="vbA"></div><div class="tiles" id="vbT">${shuffle(words.map((w,i)=>({w,i}))).map(t=>`<button data-w="${esc(t.w)}">${esc(t.w)}</button>`).join("")}</div>
+   <p class="small muted" id="vbM"></p>`);
+  $("gNew").onclick=verseBuilder;
+  $("vbT").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.w===words[pos]){pos++;b.remove();$("vbA").textContent=words.slice(0,pos).join(" ");
+      if(pos===words.length)setTimeout(()=>win("vb","Verse complete!",`“${v[0]}” — ${v[1]}`+(miss?` · ${miss} slip${miss>1?"s":""}`:" · perfect!")),250)}
+    else{miss++;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),350);$("vbM").textContent=`Slips: ${miss}`}};
+}
+
+/* --- Books in order --- */
+function booksOrder(){
+  const lv=level("bo"),k=[4,6,9][lv-1];
+  const pick=shuffle(BOOKS.map((_,i)=>i)).slice(0,k),order=pick.slice().sort((a,b)=>a-b);let pos=0,miss=0;
+  gameShell("Books in Order",`<p class="small muted">Tap these books in the order they appear in the Bible, from first to last.</p>
+   <div class="answer" id="boA" style="font-size:16px"></div><div class="tiles" id="boT">${pick.map(i=>`<button data-i="${i}">${esc(BOOKS[i][0])}</button>`).join("")}</div><p class="small muted" id="boM"></p>`);
+  $("gNew").onclick=booksOrder;
+  $("boT").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+    if(+b.dataset.i===order[pos]){pos++;b.remove();$("boA").innerHTML=order.slice(0,pos).map((i,x)=>`${x+1}. ${esc(BOOKS[i][0])}`).join("<br>");
+      if(pos===k)setTimeout(()=>win("bo","Perfect order!",miss?`${miss} slip${miss>1?"s":""} — you're learning the library of Scripture!`:"Flawless! You know your Bible's library."),250)}
+    else{miss++;b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),350);$("boM").textContent=`Slips: ${miss}`}};
+}
+
+/* ================= JOURNAL ================= */
+function renderJournal(){
+  const q=$("search").value.toLowerCase();
+  const list=S.journal.filter(j=>!q||[j.ref,j.s,j.o,j.a,j.p].join(" ").toLowerCase().includes(q));
+  if(!list.length){$("entries").innerHTML=`<p class="muted" style="margin:0">${S.journal.length?"No matches.":"Your reflections will appear here. Fill in step 3 on the Today tab — each one earns +5 ⭐."}</p>`;return}
+  $("entries").innerHTML=list.map(j=>{const d=parse(j.date).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+    const f=(t,v)=>v?`<dt>${t}</dt><dd>${esc(v)}</dd>`:"";
+    return `<details class="entry"><summary><div class="row between"><b style="font-family:var(--serif)">${esc(j.ref)}</b><span class="muted small">${d}</span></div><div class="muted small" style="margin-top:3px">${esc((j.a||j.o||j.s||j.p).slice(0,90))}</div></summary>
+    <dl>${f("Scripture",j.s)}${f("Observation",j.o)}${f("Application",j.a)}${f("Prayer",j.p)}</dl><button class="btn ghost sm" data-del="${j.id}">Delete</button></details>`}).join("");
+}
+$("search").oninput=renderJournal;
+$("entries").onclick=async e=>{const id=e.target.dataset&&e.target.dataset.del;if(!id)return;
+  if(await dialog({title:"Delete this reflection?",ok:"Delete",cancel:"Keep"})){const j=S.journal.find(x=>String(x.id)===id);if(j)dirty.add(mkey(j.date));S.journal=S.journal.filter(x=>String(x.id)!==id);save();renderJournal()}};
+
+/* ================= JOURNEY ================= */
+const MILESTONES=[{k:"d",n:1,l:"First day"},{k:"s",n:3,l:"3-day streak"},{k:"s",n:7,l:"Full week"},{k:"s",n:30,l:"30-day streak"},{k:"s",n:100,l:"100-day streak"},{k:"d",n:50,l:"50 days"},{k:"d",n:180,l:"Half a year"},{k:"c",n:100,l:"100 chapters"},{k:"c",n:500,l:"500 chapters"},{k:"c",n:1189,l:"A Bible's worth"},{k:"j",n:10,l:"10 reflections"},{k:"p",n:1,l:"Plan finished"}];
+function mval(m){return m.k==="s"?best():m.k==="c"?S.chapters:m.k==="j"?S.journal.length:m.k==="d"?daysRead():S.plansDone}
+function renderJourney(){
+  $("rankBig").textContent=rank(S.decades);const dr=daysRead();
+  $("rankNext").textContent=`${10-dr%10} more day${10-dr%10===1?"":"s"} to “${rank(S.decades+1)}” · ${dr} days read`;
+  $("stStreak").textContent=streak();$("stBest").textContent=best();$("stDays").textContent=dr;$("stCh").textContent=S.chapters;$("stPts").textContent=S.earned;$("stShield").textContent=S.shields;
+  let h="";const now=new Date(),start=addDays(now,-(77+now.getDay()));
+  for(let i=0;i<84;i++){const d=addDays(start,i),k=key(d);if(d>now&&k!==today()){h+='<i style="visibility:hidden"></i>';continue}
+    h+=`<i class="${S.days[k]?"y":S.graced[k]?"g":""} ${k===today()?"t":""}"></i>`}
+  $("heat").innerHTML=h;
+  $("badges").innerHTML=MILESTONES.map(m=>{const got=mval(m)>=m.n;const sym=m.k==="c"?(m.n>=1000?"📖":m.n):m.k==="j"?"✎":m.k==="p"?"🏆":m.n;
+    return `<div class="badge ${got?"got":""}"><div class="b">${sym}</div>${esc(m.l)}</div>`}).join("");
+  $("nameInput").value=S.name;
+  $("themeSel").innerHTML=Object.keys(THEMES).filter(t=>t==="parchment"||has("th-"+t)).map(t=>`<option value="${t}" ${t===S.theme?"selected":""}>${THEMES[t]}</option>`).join("")+`<option disabled>More themes in the Play shop…</option>`;
+}
+$("nameInput").onchange=e=>{S.name=e.target.value.trim();save();renderHeader();toast("Saved")};
+$("themeSel").onchange=e=>{S.theme=e.target.value;save();applyTheme()};
+$("exportBtn").onclick=async()=>{const txt=JSON.stringify(S);
+  try{await navigator.clipboard.writeText(txt);toast("Backup copied — paste it into Notes to keep it safe")}
+  catch(e){dialog({title:"Your backup",html:`<p class="small muted">Select all and copy this text into Notes:</p><textarea style="min-height:160px;font-size:11px">${esc(txt)}</textarea>`,ok:"Done"})}};
+$("importBtn").onclick=async()=>{const t=await dialog({title:"Restore backup",text:"Paste the backup text you saved.",input:"",area:true,ok:"Restore",cancel:"Cancel"});if(!t)return;
+  try{const d=JSON.parse(t);if(!d.days)throw 0;S.journal.forEach(e=>dirty.add(mkey(e.date)));S=Object.assign(blank(),d);S.journal.forEach(e=>dirty.add(mkey(e.date)));save();applyTheme();renderAll();toast("Backup restored")}catch(e){toast("That doesn't look like a Lamp backup")}};
+$("resetBtn").onclick=async()=>{if(await dialog({title:"Erase everything?",text:"All progress, points, upgrades and journal entries will be deleted. This cannot be undone.",ok:"Erase",cancel:"Cancel"})){
+  S.journal.forEach(e=>dirty.add(mkey(e.date)));S=blank();S.planStart=today();save();applyTheme();renderAll();toast("Fresh start")}};
+
+/* ================= NAV ================= */
+function go(v){document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));
+  document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));scrollTo(0,0);if(v==="play")closeGame();renderAll()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+function applyTheme(){document.body.dataset.theme=THEMES[S.theme]?S.theme:"parchment"}
+function renderAll(){renderToday();renderPlan();renderPlay();renderJournal();renderJourney()}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderAll()});
+
+if(!S.planStart)S.planStart=today();
+applyTheme();renderAll();applyGrace();
+if(!S.name&&!daysRead()&&!S.updated){
+  dialog({icon:"🪔",title:"Welcome to Lamp",html:`<p class="muted">“Thy word is a lamp unto my feet, and a light unto my path.” — Psalm 119:105</p><p>Your plan: <b>the whole Bible in a year</b>. Read daily to earn ⭐ points, unlock games and open a reward chest every 10 days.</p><p class="small muted">What should I call you?</p>`,input:"",placeholder:"Your name",ok:"Let's begin"})
+  .then(n=>{if(n){S.name=n.trim();save();renderHeader()}});
+}
+initDB();
+try{if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")&&!window.claude)navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}
+</script>
+</body>
+</html>
